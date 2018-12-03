@@ -1,0 +1,189 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import XCamera kivy.garden.xcamera.XCamera
+#:import ListAdapter kivy.adapters.listadapter.ListAdapter
+#: import main main
+# coding: utf-8
+
+ScreenManagement:
+	UserPage
+	Main
+	CameraClick
+	KeyCode
+
+<UserPage>:
+	name: "user_page"
+	FloatLayout:
+		canvas.before:
+			Color:
+				rgba: get_color_from_hex('#D3D4D5')
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		Label:
+			id: msg
+			size_hint: .7, .1
+			pos_hint: {"center_x": .5, "center_y": .55}
+			text:
+		GridLayout:
+			cols: 1
+			spacing: 5
+			size_hint: .7, .37
+			pos_hint: {"center_x": .5, "center_y": .5}
+			Button:
+				size_hint: 1., 1.
+				text: 'Busca de Produtos'
+				on_release: root.busca()
+			Button:
+				size_hint: 1., 1.
+				text: 'Ler nota'
+				on_release: root.ler()
+			Button:
+				size_hint: 1., 1.
+				text: 'Inserir chave'
+				on_release: root.key()
+
+<Info>:
+	label_id_text: label_id_text
+	label_id_data: label_id_data
+
+	title: self.mode + " State"
+	size_hint: None, None
+	size: 350, 350
+	auto_dismiss: False
+
+	BoxLayout:
+		orientation: "vertical"
+		GridLayout:
+			cols: 2
+			Label:
+				id: label_id_text
+				text: "ID"
+			Label:
+				id: label_id_data
+				text: root.col_data[0]  # root.userid
+			Label:
+				text: "First Name"
+			TextInput:
+				id: fname
+				text: root.col_data[1]  # root.fname
+			Label:
+				text: "Last Name"
+			TextInput:
+				id: lname
+				text: root.col_data[2]  # root.lname
+		Button:
+			size_hint: 1, 0.4
+			text: "Confirm " + root.mode
+			on_release:
+				root.package_changes(fname.text, lname.text)
+				app.root.update_changes(root)
+				root.dismiss()
+		Button:
+			size_hint: 1, 0.4
+			text: "Cancel " + root.mode
+			on_release: root.dismiss()
+
+<SelectableButton>:
+	canvas.before:
+		Color:
+			rgba: (.0, 0.9, .1, .3) if self.selected else (0, 0, 0, 1)
+		Rectangle:
+			pos: self.pos
+			size: self.size
+
+<RV>:
+	BoxLayout:
+		orientation: "vertical"
+
+		#Label:
+			#text: "Buscar:"
+			#size_hint: 1, 0.1
+		TextInput:
+			id: campobusca
+			size_hint: 1, 0.1
+		Button:
+			size_hint: 1, 0.1
+			text: "Buscar"
+			on_press: root.update(campobusca.text)
+
+		GridLayout:
+			size_hint: 1, None
+			size_hint_y: None
+			height: 25
+			cols: 5
+
+			Label:
+				text: "Cód."
+			Label:
+				text: "Descrição"
+			Label:
+				text: "Unidade"
+			Label:
+				text: "Preço"
+			Label:
+				text: "Endereço"
+
+		BoxLayout:
+			RecycleView:
+				viewclass: 'SelectableButton'
+				data: [{'text': str(x)} for x in root.rv_data]
+				SelectableRecycleGridLayout:
+					cols: 5
+					default_size: None, dp(26)
+					default_size_hint: 1, None
+					size_hint_y: None
+					height: self.minimum_height
+					orientation: 'vertical'
+					multiselect: True
+					touch_multiselect: True
+	
+<Main>:
+	name: "search"
+	RV:
+	Button:
+		text: 'Voltar'
+		size_hint_y: None
+		height: '48dp'
+		on_press: root.manager.current = "user_page"
+
+<CameraClick>:
+	name: "cam"
+	BoxLayout:
+		orientation: 'vertical'
+		Camera:
+			id: camera
+			resolution: (640, 480)
+			play: False
+		ToggleButton:
+			text: 'Iniciar Câmera'
+			on_press: camera.play = not camera.play
+			size_hint_y: None
+			height: '48dp'
+		Button:
+			text: 'Capturar Código'
+			size_hint_y: None
+			height: '48dp'
+			on_press: root.capture()
+		Button:
+			text: 'Voltar'
+			size_hint_y: None
+			height: '48dp'
+			on_press: root.manager.current = "user_page"
+
+<KeyCode>:
+	name: "key"
+	BoxLayout:
+		orientation: "vertical"
+
+		TextInput:
+			id: campoinsercao
+			size_hint: 1, 0.1
+		Button:
+			size_hint: 1, 0.1
+			text: "Inserir"
+			on_press: root.insert(campoinsercao.text)
+		Button:
+			text: 'Voltar'
+			size_hint_y: None
+			height: '48dp'
+			on_press: root.manager.current = "user_page"
